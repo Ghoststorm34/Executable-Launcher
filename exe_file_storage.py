@@ -52,20 +52,29 @@ class ExeLauncherApp:
         self.menu_bar = tk.Menu(root)
         root.config(menu=self.menu_bar)
 
-        # Add a File menu with all options
+        # File Menu: Focused on general app options
         self.file_menu = tk.Menu(self.menu_bar, tearoff=0)
         self.menu_bar.add_cascade(label="File", menu=self.file_menu)
-
-        self.file_menu.add_command(label="Add Group", command=self.add_group)
-        self.file_menu.add_command(label="Add EXE", command=self.add_exe)
-        self.file_menu.add_command(label="Remove EXE", command=self.remove_exe)
-        self.file_menu.add_command(label="Edit EXE", command=self.edit_exe)
-        self.file_menu.add_command(label="Sort List", command=self.sort_list)
-        self.file_menu.add_command(label="Delete Group", command=self.delete_group)
-        self.file_menu.add_separator()
-        self.file_menu.add_command(label="Execute Selected EXE", command=self.execute_exe)
-        self.file_menu.add_separator()
         self.file_menu.add_command(label="Exit", command=root.quit)
+
+        # Group Menu: Focused on group-related actions
+        self.group_menu = tk.Menu(self.menu_bar, tearoff=0)
+        self.menu_bar.add_cascade(label="Group", menu=self.group_menu)
+        self.group_menu.add_command(label="Add Group", command=self.add_group)
+        self.group_menu.add_command(label="Delete Group", command=self.delete_group)
+
+        # EXE Menu: Focused on EXE management actions
+        self.exe_menu = tk.Menu(self.menu_bar, tearoff=0)
+        self.menu_bar.add_cascade(label="EXE", menu=self.exe_menu)
+        self.exe_menu.add_command(label="Add EXE", command=self.add_exe)
+        self.exe_menu.add_command(label="Remove EXE", command=self.remove_exe)
+        self.exe_menu.add_command(label="Edit EXE", command=self.edit_exe)
+        self.exe_menu.add_command(label="Sort List", command=self.sort_list)
+
+        # Execute Menu: Dedicated to executing EXE files
+        self.execute_menu = tk.Menu(self.menu_bar, tearoff=0)
+        self.menu_bar.add_cascade(label="Execute", menu=self.execute_menu)
+        self.execute_menu.add_command(label="Execute Selected EXE", command=self.execute_exe)
 
         # Create frame for top buttons
         self.top_buttons_frame = tk.Frame(root, bg=self.bg_color)
