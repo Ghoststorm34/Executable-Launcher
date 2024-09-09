@@ -46,41 +46,96 @@ class ExeLauncherApp:
         self.treeview.configure(style="Custom.Treeview")
         self.treeview.heading("#0", text="Name")
         self.treeview.heading("path", text="Path")
-
         self.treeview.pack(pady=10, fill=tk.BOTH, expand=True)
 
-        # Create frame for buttons
-        self.button_frame = tk.Frame(root, bg=self.bg_color)
-        self.button_frame.pack(pady=5)
+        # Create a menu bar
+        self.menu_bar = tk.Menu(root)
+        root.config(menu=self.menu_bar)
 
-        # Add group and add exe buttons side by side
-        self.add_group_button = ttk.Button(self.button_frame, text="Add Group", command=self.add_group, style="Custom.TButton")
-        self.add_group_button.pack(side=tk.LEFT, padx=5)
+        # Add a File menu with all options
+        self.file_menu = tk.Menu(self.menu_bar, tearoff=0)
+        self.menu_bar.add_cascade(label="File", menu=self.file_menu)
 
-        self.add_exe_button = ttk.Button(self.button_frame, text="Add EXE", command=self.add_exe, style="Custom.TButton")
-        self.add_exe_button.pack(side=tk.LEFT, padx=5)
-        
-        # Create frame for other buttons
-        self.control_frame = tk.Frame(root, bg=self.bg_color)
-        self.control_frame.pack(pady=5)
+        self.file_menu.add_command(label="Add Group", command=self.add_group)
+        self.file_menu.add_command(label="Add EXE", command=self.add_exe)
+        self.file_menu.add_command(label="Remove EXE", command=self.remove_exe)
+        self.file_menu.add_command(label="Edit EXE", command=self.edit_exe)
+        self.file_menu.add_command(label="Sort List", command=self.sort_list)
+        self.file_menu.add_command(label="Delete Group", command=self.delete_group)
+        self.file_menu.add_separator()
+        self.file_menu.add_command(label="Execute Selected EXE", command=self.execute_exe)
+        self.file_menu.add_separator()
+        self.file_menu.add_command(label="Exit", command=root.quit)
 
-        # Remove, execute, edit, and sort buttons side by side
-        self.remove_button = ttk.Button(self.control_frame, text="Remove Selected EXE", command=self.remove_exe, style="Custom.TButton")
-        self.remove_button.pack(side=tk.LEFT, padx=5)
+        # Create frame for top buttons
+        self.top_buttons_frame = tk.Frame(root, bg=self.bg_color)
+        self.top_buttons_frame.pack(pady=5, fill=tk.X)
 
-        self.execute_button = ttk.Button(self.control_frame, text="Execute Selected EXE", command=self.execute_exe, style="Custom.TButton")
-        self.execute_button.pack(side=tk.LEFT, padx=5)
+        # Create frame for bottom buttons
+        self.bottom_buttons_frame = tk.Frame(root, bg=self.bg_color)
+        self.bottom_buttons_frame.pack(pady=5, fill=tk.X)
 
-        self.edit_button = ttk.Button(self.control_frame, text="Edit Selected EXE", command=self.edit_exe, style="Custom.TButton")
-        self.edit_button.pack(side=tk.LEFT, padx=5)
+        # Add buttons to bottom frame using grid layout
+        self.bottom_buttons_frame.columnconfigure(0, weight=1)
+        self.bottom_buttons_frame.columnconfigure(1, weight=1)
+        self.bottom_buttons_frame.columnconfigure(2, weight=1)
+        self.bottom_buttons_frame.columnconfigure(3, weight=1)
 
-        self.sort_button = ttk.Button(self.control_frame, text="Sort List Alphabetically", command=self.sort_list, style="Custom.TButton")
-        self.sort_button.pack(side=tk.LEFT, padx=5)
+        self.remove_button = ttk.Button(self.bottom_buttons_frame, text="Remove EXE", command=self.remove_exe, style="Custom.TButton")
+        self.remove_button.grid(row=0, column=0, padx=5, pady=5)
+
+        self.edit_button = ttk.Button(self.bottom_buttons_frame, text="Edit EXE", command=self.edit_exe, style="Custom.TButton")
+        self.edit_button.grid(row=0, column=1, padx=5, pady=5)
+
+        self.sort_button = ttk.Button(self.bottom_buttons_frame, text="Sort List Alphabetically", command=self.sort_list, style="Custom.TButton")
+        self.sort_button.grid(row=0, column=2, padx=5, pady=5)
+
+        self.delete_group_button = ttk.Button(self.bottom_buttons_frame, text="Delete Group", command=self.delete_group, style="Custom.TButton")
+        self.delete_group_button.grid(row=0, column=3, padx=5, pady=5)
+
+        # Add buttons to top frame using grid layout with adjusted column placement
+        self.top_buttons_frame.columnconfigure(0, weight=1)
+        self.top_buttons_frame.columnconfigure(1, weight=1)
+        self.top_buttons_frame.columnconfigure(2, weight=1)
+        self.top_buttons_frame.columnconfigure(3, weight=1)
+        self.top_buttons_frame.columnconfigure(4, weight=1)
+        self.top_buttons_frame.columnconfigure(5, weight=1)
+        self.top_buttons_frame.columnconfigure(6, weight=1)
+
+        self.add_group_button = ttk.Button(self.top_buttons_frame, text="Add Group", command=self.add_group, style="Custom.TButton")
+        self.add_group_button.grid(row=0, column=1, padx=5, pady=5)
+
+        self.add_exe_button = ttk.Button(self.top_buttons_frame, text="Add EXE", command=self.add_exe, style="Custom.TButton")
+        self.add_exe_button.grid(row=0, column=3, padx=5, pady=5)
+
+        self.execute_exe_button = ttk.Button(self.top_buttons_frame, text="Execute EXE", command=self.execute_exe, style="Custom.TButton")
+        self.execute_exe_button.grid(row=0, column=5, padx=5, pady=5)
+
+        # Create a context menu with all options
+        self.context_menu = tk.Menu(root, tearoff=0)
+        self.context_menu.add_command(label="Add Group", command=self.add_group)
+        self.context_menu.add_command(label="Add EXE", command=self.add_exe)
+        self.context_menu.add_command(label="Remove EXE", command=self.remove_exe)
+        self.context_menu.add_command(label="Edit EXE", command=self.edit_exe)
+        self.context_menu.add_command(label="Sort List Alphabetically", command=self.sort_list)
+        self.context_menu.add_command(label="Delete Group", command=self.delete_group)
+        self.context_menu.add_separator()
+        self.context_menu.add_command(label="Execute Selected EXE", command=self.execute_exe)
+
+        # Bind context menu to right click on treeview
+        self.treeview.bind("<Button-3>", self.show_context_menu)
 
         # Configure root window background color
         self.root.configure(bg=self.bg_color)
 
         self.update_treeview()
+
+    def show_context_menu(self, event):
+        """Display the context menu."""
+        try:
+            self.context_menu.post(event.x_root, event.y_root)
+        finally:
+            self.context_menu.grab_release()
 
     def add_group(self):
         """Add a new group."""
@@ -133,20 +188,20 @@ class ExeLauncherApp:
                     exe_to_remove = next((exe for exe in self.exe_list[group_name] if exe["name"] in exe_name), None)
                     
                     if exe_to_remove:
-                        self.exe_list[group_name].remove(exe_to_remove)
-                        if not self.exe_list[group_name]:
-                            del self.exe_list[group_name]
-                        self.save_exe_list()
-                        self.update_treeview()
+                        confirm = messagebox.askyesno("Confirm Removal", f"Are you sure you want to remove '{exe_name}'?")
+                        if confirm:
+                            self.exe_list[group_name].remove(exe_to_remove)
+                            self.save_exe_list()
+                            self.update_treeview()
                     else:
-                        messagebox.showwarning("Removal Error", "Selected executable not found in the group.")
+                        messagebox.showwarning("Selection Error", "Selected item is not an executable.")
                 else:
                     messagebox.showwarning("Selection Error", "Selected item is not an executable.")
             except Exception as e:
                 messagebox.showerror("Error", f"Failed to remove executable: {e}")
-
+    
     def execute_exe(self):
-        """Execute the selected exe file."""
+        """Execute the selected EXE file."""
         selected_item = self.treeview.selection()
         if selected_item:
             try:
@@ -155,12 +210,11 @@ class ExeLauncherApp:
                 if parent_item:
                     group_name = self.treeview.item(parent_item, "text")
                     exe_name = selected_text.split(" - ", 1)[0].strip()
-                    exe_to_run = next((exe["path"] for exe in self.exe_list[group_name] if exe["name"] in exe_name), None)
-                    if exe_to_run and os.path.exists(exe_to_run):
-                        subprocess.Popen(exe_to_run)
+                    exe_to_run = next((exe for exe in self.exe_list[group_name] if exe["name"] in exe_name), None)
+                    if exe_to_run:
+                        subprocess.Popen(exe_to_run["path"], shell=True)
                     else:
-                        messagebox.showerror("Error", "File not found. Removing from the list.")
-                        self.remove_exe()
+                        messagebox.showwarning("Selection Error", "Selected item is not an executable.")
                 else:
                     messagebox.showwarning("Selection Error", "Selected item is not an executable.")
             except Exception as e:
@@ -205,6 +259,28 @@ class ExeLauncherApp:
         self.exe_list = {group: self.exe_list[group] for group in sorted_groups}
         self.save_exe_list()
         self.update_treeview()
+
+    def delete_group(self):
+        """Delete the selected group."""
+        selected_item = self.treeview.selection()
+        if selected_item:
+            try:
+                selected_text = self.treeview.item(selected_item[0], "text")
+                parent_item = self.treeview.parent(selected_item[0])
+                if not parent_item:
+                    # Confirm group deletion
+                    confirm = messagebox.askyesno("Confirm Deletion", f"Are you sure you want to delete the group '{selected_text}' and all its executables?")
+                    if confirm:
+                        if selected_text in self.exe_list:
+                            del self.exe_list[selected_text]
+                            self.save_exe_list()
+                            self.update_treeview()
+                        else:
+                            messagebox.showwarning("Deletion Error", "Selected group not found.")
+                else:
+                    messagebox.showwarning("Selection Error", "Selected item is not a group.")
+            except Exception as e:
+                messagebox.showerror("Error", f"Failed to delete group: {e}")
 
     def save_exe_list(self):
         """Save the list of exe files and custom names to a JSON file."""
