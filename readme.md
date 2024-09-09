@@ -8,3 +8,6 @@ This is made in Python with tkinter as the basis for the GUI. The storage is don
 ChatGPT was used for most of the code, with small bits done by hand for bugfixing and small refinements.
 
 I hope this is useful to somebody, it was certainly useful for me.
+
+![image](https://github.com/user-attachments/assets/fde65d9e-883e-4896-994f-c3f35b5e0378)
+
