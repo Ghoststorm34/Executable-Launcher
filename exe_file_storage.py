@@ -11,7 +11,7 @@ class ExeLauncherApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Executable Launcher")
-        self.root.geometry("800x600")
+        self.root.geometry("1000x575")
         
         # Set dark mode colors
         self.bg_color = "#2e2e2e"  # Dark background
