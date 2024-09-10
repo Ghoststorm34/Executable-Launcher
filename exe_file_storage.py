@@ -13,67 +13,65 @@ class ExeLauncherApp:
         self.construct_ui()
 
         self.exe_list = {
+        "executables": [
             {
-                "executables": [
-                    {
-                        "name": "Kind Words",
-                        "path": "C:/Games/Kind Words.exe",
-                        "emoji": "📁",
-                        "group": "Games"
-                    },
-                    {
-                        "name": "Rocket League",
-                        "path": "C:/Games/Rocket League.exe",
-                        "emoji": "🚀",
-                        "group": "Action"
-                    },
-                    {
-                        "name": "Doom Eternal",
-                        "path": "C:/Games/Doom Eternal.exe",
-                        "emoji": "🔫",
-                        "group": "Action"
-                    },
-                    {
-                        "name": "Stardew Valley",
-                        "path": "C:/Games/Stardew Valley.exe",
-                        "emoji": "🌾",
-                        "group": "Strategy"
-                    },
-                    {
-                        "name": "Civilization VI",
-                        "path": "C:/Games/Civilization VI.exe",
-                        "emoji": "🌍",
-                        "group": "Strategy"
-                    },
-                    {
-                        "name": "Skyrim Mod Organizer",
-                        "path": "C:/Mods/Skyrim Mod Organizer.exe",
-                        "emoji": "🗺️",
-                        "group": "Mod Lists"
-                    },
-                    {
-                        "name": "Fallout 4 Mod Manager",
-                        "path": "C:/Mods/Fallout 4 Mod Manager.exe",
-                        "emoji": "🔧",
-                        "group": "Mod Lists"
-                    }
-                ],
-                "groups": [
-                    {
-                        "name": "Games",
-                        "sub_groups": [
-                            {"name": "Action", "sub_groups": []},
-                            {"name": "Adventure", "sub_groups": []},
-                            {"name": "Strategy", "sub_groups": []},
-                        ],
-                    },
-                    {
-                        "name": "Mod Lists",
-                        "sub_groups": []
-                    }
-                ],
+                "name": "Kind Words",
+                "path": "C:/Games/Kind Words.exe",
+                "emoji": "📁",
+                "group": "Games"
+            },
+            {
+                "name": "Rocket League",
+                "path": "C:/Games/Rocket League.exe",
+                "emoji": "🚀",
+                "group": "Action"
+            },
+            {
+                "name": "Doom Eternal",
+                "path": "C:/Games/Doom Eternal.exe",
+                "emoji": "🔫",
+                "group": "Action"
+            },
+            {
+                "name": "Stardew Valley",
+                "path": "C:/Games/Stardew Valley.exe",
+                "emoji": "🌾",
+                "group": "Strategy"
+            },
+            {
+                "name": "Civilization VI",
+                "path": "C:/Games/Civilization VI.exe",
+                "emoji": "🌍",
+                "group": "Strategy"
+            },
+            {
+                "name": "Skyrim Mod Organizer",
+                "path": "C:/Mods/Skyrim Mod Organizer.exe",
+                "emoji": "🗺️",
+                "group": "Mod Lists"
+            },
+            {
+                "name": "Fallout 4 Mod Manager",
+                "path": "C:/Mods/Fallout 4 Mod Manager.exe",
+                "emoji": "🔧",
+                "group": "Mod Lists"
             }
-        }
+        ],
+        "groups": [
+            {
+                "name": "Games",
+                "sub_groups": [
+                    {"name": "Action", "sub_groups": []},
+                    {"name": "Adventure", "sub_groups": []},
+                    {"name": "Strategy", "sub_groups": []},
+                ],
+            },
+            {
+                "name": "Mod Lists",
+                "sub_groups": []
+            }
+        ]
+    }
         
     def construct_ui(self):
         self.root.title("Executable Launcher")
@@ -108,20 +106,20 @@ class ExeLauncherApp:
         self.load_exe_list()
 
         # Create treeview
-        self.treeview = ttk.Treeview(root, columns=("path",), show="tree", style="Custom.Treeview")
+        self.treeview = ttk.Treeview(self.root, columns=("path",), show="tree", style="Custom.Treeview")
         self.treeview.configure(style="Custom.Treeview")
         self.treeview.heading("#0", text="Name")
         self.treeview.heading("path", text="Path")
         self.treeview.pack(pady=10, fill=tk.BOTH, expand=True)
 
         # Create a menu bar
-        self.menu_bar = tk.Menu(root)
-        root.config(menu=self.menu_bar)
+        self.menu_bar = tk.Menu(self.root)
+        self.root.config(menu=self.menu_bar)
 
         # File Menu: Focused on general app options
         self.file_menu = tk.Menu(self.menu_bar, tearoff=0)
         self.menu_bar.add_cascade(label="File", menu=self.file_menu)
-        self.file_menu.add_command(label="Exit", command=root.quit)
+        self.file_menu.add_command(label="Exit", command=self.root.quit)
 
         # Group Menu: Focused on group-related actions
         self.group_menu = tk.Menu(self.menu_bar, tearoff=0)
@@ -143,11 +141,11 @@ class ExeLauncherApp:
         self.execute_menu.add_command(label="Execute Selected EXE", command=self.execute_exe)
 
         # Create frame for top buttons
-        self.top_buttons_frame = tk.Frame(root, bg=self.bg_color)
+        self.top_buttons_frame = tk.Frame(self.root, bg=self.bg_color)
         self.top_buttons_frame.pack(pady=5, fill=tk.X)
 
         # Create frame for bottom buttons
-        self.bottom_buttons_frame = tk.Frame(root, bg=self.bg_color)
+        self.bottom_buttons_frame = tk.Frame(self.root, bg=self.bg_color)
         self.bottom_buttons_frame.pack(pady=5, fill=tk.X)
 
         # Add buttons to bottom frame using grid layout
@@ -187,7 +185,7 @@ class ExeLauncherApp:
         self.execute_exe_button.grid(row=0, column=5, padx=5, pady=5)
 
         # Create a context menu with all options
-        self.context_menu = tk.Menu(root, tearoff=0)
+        self.context_menu = tk.Menu(self.root, tearoff=0)
         self.context_menu.add_command(label="Add Group", command=self.add_group)
         self.context_menu.add_command(label="Add EXE", command=self.add_exe)
         self.context_menu.add_command(label="Remove EXE", command=self.remove_exe)
@@ -368,19 +366,101 @@ class ExeLauncherApp:
         #     with open(DATA_FILE, 'r') as f:
         #         self.exe_list = json.load(f)
     
-    def update_treeview(self):
+    def update_treeview(self, groups):
         """Update the Treeview with the current exe list and custom names."""
-        for item in self.treeview.get_children():
-            self.treeview.delete(item)
+        for group in groups:
+        # Process the current group
+        
+        
+            # Recursively process sub-groups
+            if group['sub_groups']:
+                self.update_treeview(group['sub_groups'])
 
-        for group, exe_list in self.exe_list.items():
-            group_item = self.treeview.insert("", tk.END, text=group, open=True)
-            for exe_entry in exe_list:
-                display_text = f"{exe_entry.get('emoji', '')} {exe_entry['name']}"
-                self.treeview.insert(group_item, tk.END, text=display_text, values=(exe_entry['path'],))
+
+def print_groups_and_executables(exe_list, current_group=None, indent=0):
+    # Print executables associated with the current group
+    if current_group:
+        print(' ' * indent + f"Group: {current_group}")
+    else:
+        print("Root")
+    
+    # Print sub-groups
+    for group in exe_list['groups']:
+        if not current_group or group['name'] == current_group:
+            print(' ' * indent + f"Group: {group['name']}")
+            if group['sub_groups']:
+                for sub_group in group['sub_groups']:
+                    print_groups_and_executables(
+                        exe_list, 
+                        current_group=sub_group['name'],
+                        indent=indent + 2
+                    )
 
 # Main code to run the application
 if __name__ == "__main__":
-    root = tk.Tk()
-    app = ExeLauncherApp(root)
-    root.mainloop()
+    # root = tk.Tk()
+    # app = ExeLauncherApp(root)
+    # root.mainloop()
+
+    exe_list = {
+            "executables": [
+                {
+                    "name": "Kind Words",
+                    "path": "C:/Games/Kind Words.exe",
+                    "emoji": "📁",
+                    "group": "Games"
+                },
+                {
+                    "name": "Rocket League",
+                    "path": "C:/Games/Rocket League.exe",
+                    "emoji": "🚀",
+                    "group": "Action"
+                },
+                {
+                    "name": "Doom Eternal",
+                    "path": "C:/Games/Doom Eternal.exe",
+                    "emoji": "🔫",
+                    "group": "Action"
+                },
+                {
+                    "name": "Stardew Valley",
+                    "path": "C:/Games/Stardew Valley.exe",
+                    "emoji": "🌾",
+                    "group": "Strategy"
+                },
+                {
+                    "name": "Civilization VI",
+                    "path": "C:/Games/Civilization VI.exe",
+                    "emoji": "🌍",
+                    "group": "Strategy"
+                },
+                {
+                    "name": "Skyrim Mod Organizer",
+                    "path": "C:/Mods/Skyrim Mod Organizer.exe",
+                    "emoji": "🗺️",
+                    "group": "Mod Lists"
+                },
+                {
+                    "name": "Fallout 4 Mod Manager",
+                    "path": "C:/Mods/Fallout 4 Mod Manager.exe",
+                    "emoji": "🔧",
+                    "group": "Mod Lists"
+                }
+            ],
+            "groups": [
+                {
+                    "name": "Games",
+                    "sub_groups": [
+                        {"name": "Action", "sub_groups": []},
+                        {"name": "Adventure", "sub_groups": []},
+                        {"name": "Strategy", "sub_groups": []},
+                    ],
+                },
+                {
+                    "name": "Mod Lists",
+                    "sub_groups": []
+                }
+            ]
+        }
+    
+    print_groups_and_executables(exe_list)
