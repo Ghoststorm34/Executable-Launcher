@@ -10,14 +10,18 @@ DATA_FILE = "exe_list.json"
 class ExeLauncherApp:
     def __init__(self, root):
         self.root = root
-        self.construct_ui()
-
         self.exe_list = {
         "executables": [
             {
+                "name": "Test",
+                "path": "C:/Test/Test.exe",
+                "emoji": "🌟",
+                "group": "Root"
+            },
+            {
                 "name": "Kind Words",
                 "path": "C:/Games/Kind Words.exe",
-                "emoji": "📁",
+                "emoji": "🌟",
                 "group": "Games"
             },
             {
@@ -72,7 +76,8 @@ class ExeLauncherApp:
             }
         ]
     }
-        
+        self.construct_ui()
+   
     def construct_ui(self):
         self.root.title("Executable Launcher")
         self.root.geometry("1000x575")
@@ -102,7 +107,7 @@ class ExeLauncherApp:
                        background=[('active', '#666666')],
                        foreground=[('active', '#ffffff')])
 
-        self.exe_list = {}
+        # self.exe_list = {}
         self.load_exe_list()
 
         # Create treeview
@@ -366,101 +371,35 @@ class ExeLauncherApp:
         #     with open(DATA_FILE, 'r') as f:
         #         self.exe_list = json.load(f)
     
-    def update_treeview(self, groups):
+    def update_treeview(self):
         """Update the Treeview with the current exe list and custom names."""
-        for group in groups:
-        # Process the current group
-        
-        
-            # Recursively process sub-groups
-            if group['sub_groups']:
-                self.update_treeview(group['sub_groups'])
+        group_node_ids = {}
 
+        def add_group(parent, group):
+            group_node_ids[group['name']] = self.treeview.insert(parent, 'end', text=group['name'])
+            for sub_group in group['sub_groups']:
+                add_group(group_node_ids[group['name']], sub_group)
 
-def print_groups_and_executables(exe_list, current_group=None, indent=0):
-    # Print executables associated with the current group
-    if current_group:
-        print(' ' * indent + f"Group: {current_group}")
-    else:
-        print("Root")
-    
-    # Print sub-groups
-    for group in exe_list['groups']:
-        if not current_group or group['name'] == current_group:
-            print(' ' * indent + f"Group: {group['name']}")
-            if group['sub_groups']:
-                for sub_group in group['sub_groups']:
-                    print_groups_and_executables(
-                        exe_list, 
-                        current_group=sub_group['name'],
-                        indent=indent + 2
-                    )
+        # Add main groups
+        for group in self.exe_list['groups']:
+            add_group('', group)
 
+        # Add executables under their respective groups, except "Root"
+        for executable in self.exe_list['executables']:
+            group = executable['group']
+            if group != "Root" and group in group_node_ids:
+                self.treeview.insert(group_node_ids[group], 'end', 
+                                     text=f"{executable['emoji']} {executable['name']}",
+                                     values=(executable['path']))
+
+        # Add executables for the "Root" group last, as root level items
+        for executable in self.exe_list['executables']:
+            if executable['group'] == "Root":
+                self.treeview.insert('', 'end', 
+                                     text=f"{executable['emoji']} {executable['name']}",
+                                     values=(executable['path']))
 # Main code to run the application
 if __name__ == "__main__":
-    # root = tk.Tk()
-    # app = ExeLauncherApp(root)
-    # root.mainloop()
-
-    exe_list = {
-            "executables": [
-                {
-                    "name": "Kind Words",
-                    "path": "C:/Games/Kind Words.exe",
-                    "emoji": "📁",
-                    "group": "Games"
-                },
-                {
-                    "name": "Rocket League",
-                    "path": "C:/Games/Rocket League.exe",
-                    "emoji": "🚀",
-                    "group": "Action"
-                },
-                {
-                    "name": "Doom Eternal",
-                    "path": "C:/Games/Doom Eternal.exe",
-                    "emoji": "🔫",
-                    "group": "Action"
-                },
-                {
-                    "name": "Stardew Valley",
-                    "path": "C:/Games/Stardew Valley.exe",
-                    "emoji": "🌾",
-                    "group": "Strategy"
-                },
-                {
-                    "name": "Civilization VI",
-                    "path": "C:/Games/Civilization VI.exe",
-                    "emoji": "🌍",
-                    "group": "Strategy"
-                },
-                {
-                    "name": "Skyrim Mod Organizer",
-                    "path": "C:/Mods/Skyrim Mod Organizer.exe",
-                    "emoji": "🗺️",
-                    "group": "Mod Lists"
-                },
-                {
-                    "name": "Fallout 4 Mod Manager",
-                    "path": "C:/Mods/Fallout 4 Mod Manager.exe",
-                    "emoji": "🔧",
-                    "group": "Mod Lists"
-                }
-            ],
-            "groups": [
-                {
-                    "name": "Games",
-                    "sub_groups": [
-                        {"name": "Action", "sub_groups": []},
-                        {"name": "Adventure", "sub_groups": []},
-                        {"name": "Strategy", "sub_groups": []},
-                    ],
-                },
-                {
-                    "name": "Mod Lists",
-                    "sub_groups": []
-                }
-            ]
-        }
-    
-    print_groups_and_executables(exe_list)
+    root = tk.Tk()
+    app = ExeLauncherApp(root)
+    root.mainloop()
