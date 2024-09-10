@@ -10,6 +10,72 @@ DATA_FILE = "exe_list.json"
 class ExeLauncherApp:
     def __init__(self, root):
         self.root = root
+        self.construct_ui()
+
+        self.exe_list = {
+            {
+                "executables": [
+                    {
+                        "name": "Kind Words",
+                        "path": "C:/Games/Kind Words.exe",
+                        "emoji": "📁",
+                        "group": "Games"
+                    },
+                    {
+                        "name": "Rocket League",
+                        "path": "C:/Games/Rocket League.exe",
+                        "emoji": "🚀",
+                        "group": "Action"
+                    },
+                    {
+                        "name": "Doom Eternal",
+                        "path": "C:/Games/Doom Eternal.exe",
+                        "emoji": "🔫",
+                        "group": "Action"
+                    },
+                    {
+                        "name": "Stardew Valley",
+                        "path": "C:/Games/Stardew Valley.exe",
+                        "emoji": "🌾",
+                        "group": "Strategy"
+                    },
+                    {
+                        "name": "Civilization VI",
+                        "path": "C:/Games/Civilization VI.exe",
+                        "emoji": "🌍",
+                        "group": "Strategy"
+                    },
+                    {
+                        "name": "Skyrim Mod Organizer",
+                        "path": "C:/Mods/Skyrim Mod Organizer.exe",
+                        "emoji": "🗺️",
+                        "group": "Mod Lists"
+                    },
+                    {
+                        "name": "Fallout 4 Mod Manager",
+                        "path": "C:/Mods/Fallout 4 Mod Manager.exe",
+                        "emoji": "🔧",
+                        "group": "Mod Lists"
+                    }
+                ],
+                "groups": [
+                    {
+                        "name": "Games",
+                        "sub_groups": [
+                            {"name": "Action", "sub_groups": []},
+                            {"name": "Adventure", "sub_groups": []},
+                            {"name": "Strategy", "sub_groups": []},
+                        ],
+                    },
+                    {
+                        "name": "Mod Lists",
+                        "sub_groups": []
+                    }
+                ],
+            }
+        }
+        
+    def construct_ui(self):
         self.root.title("Executable Launcher")
         self.root.geometry("1000x575")
         
@@ -293,14 +359,14 @@ class ExeLauncherApp:
 
     def save_exe_list(self):
         """Save the list of exe files and custom names to a JSON file."""
-        with open(DATA_FILE, 'w') as f:
-            json.dump(self.exe_list, f, indent=4)
+        # with open(DATA_FILE, 'w') as f:
+        #     json.dump(self.exe_list, f, indent=4)
 
     def load_exe_list(self):
         """Load the list of exe files and custom names from a JSON file."""
-        if os.path.exists(DATA_FILE):
-            with open(DATA_FILE, 'r') as f:
-                self.exe_list = json.load(f)
+        # if os.path.exists(DATA_FILE):
+        #     with open(DATA_FILE, 'r') as f:
+        #         self.exe_list = json.load(f)
     
     def update_treeview(self):
         """Update the Treeview with the current exe list and custom names."""
