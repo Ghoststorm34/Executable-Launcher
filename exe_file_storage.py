@@ -217,14 +217,54 @@ class ExeLauncherApp:
 
     def add_group(self):
         """Add a new group."""
+        # Prompt the user for the new group name
         group_name = simpledialog.askstring("Input", "Enter a name for the new group:", parent=self.root)
+        
         if group_name:
-            if group_name not in self.exe_list:
-                self.exe_list[group_name] = []
-                self.save_exe_list()
-                self.update_treeview()
+            if group_name == "Root":
+                messagebox.showwarning("Invalid Name", "The group name 'Root' is not allowed.")
+                return
+
+            selected_item = self.treeview.selection()  # Check if any item is selected
+            if not selected_item:
+                # No item is selected, so add the group to the root level
+                if any(group['name'] == group_name for group in self.exe_list['groups']):
+                    messagebox.showwarning("Duplicate", "This group already exists.")
+                else:
+                    new_group = {"name": group_name, "sub_groups": []}
+                    self.exe_list['groups'].append(new_group)
+                    self.save_exe_list()
+                    self.update_treeview()
             else:
-                messagebox.showwarning("Duplicate", "This group already exists.")
+                # An item is selected, so check if it's a group or an executable
+                selected_item_id = selected_item[0]
+                selected_item_text = self.treeview.item(selected_item_id, "text")
+                
+                # Check if the selected item is a group or executable
+                if self.treeview.item(selected_item_id, "values"):
+                    # Selected item is an executable
+                    messagebox.showwarning("Invalid Selection", "You cannot add a group to an executable.")
+                else:
+                    # Selected item is a group
+                    parent_group_name = selected_item_text
+                    parent_group = self.find_group_by_name(self.exe_list['groups'], parent_group_name)
+                    if parent_group:
+                        if any(group['name'] == group_name for group in parent_group['sub_groups']):
+                            messagebox.showwarning("Duplicate", "This group already exists.")
+                        else:
+                            parent_group['sub_groups'].append({"name": group_name, "sub_groups": []})
+                            self.save_exe_list()
+                            self.update_treeview()
+
+    def find_group_by_name(self, groups, name):
+        """Recursively find a group by name in the groups list."""
+        for group in groups:
+            if group['name'] == name:
+                return group
+            found = self.find_group_by_name(group['sub_groups'], name)
+            if found:
+                return found
+        return None
 
     def add_exe(self):
         """Add an executable to the selected group with a custom name and emoji."""
@@ -373,6 +413,7 @@ class ExeLauncherApp:
     
     def update_treeview(self):
         """Update the Treeview with the current exe list and custom names."""
+        self.treeview.delete(*self.treeview.get_children())
         group_node_ids = {}
 
         def add_group(parent, group):
