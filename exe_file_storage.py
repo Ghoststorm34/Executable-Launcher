@@ -398,6 +398,8 @@ class ExeLauncherApp:
                 self.treeview.insert('', 'end', 
                                      text=f"{executable['emoji']} {executable['name']}",
                                      values=(executable['path']))
+
+
 # Main code to run the application
 if __name__ == "__main__":
     root = tk.Tk()
