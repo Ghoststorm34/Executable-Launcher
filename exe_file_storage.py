@@ -4,6 +4,8 @@ import json
 import subprocess
 import os
 
+DATA_FILE = "tree_data.json"
+
 class ExecutableLauncherApp(tk.Tk):
     def __init__(self):
         super().__init__()
@@ -579,7 +581,7 @@ class ExecutableLauncherApp(tk.Tk):
     def load_data(self):
         try:
             # Load self.tree_data from a JSON file
-            with open('tree_data.json', 'r') as file:
+            with open(DATA_FILE, 'r') as file:
                 self.tree_data = json.load(file)
             
             # Clear the treeview and rebuild it using the loaded data
@@ -602,7 +604,7 @@ class ExecutableLauncherApp(tk.Tk):
 
     def save_data(self):
         # Save self.tree_data to a JSON file
-        with open('tree_data.json', 'w') as file:
+        with open(DATA_FILE, 'w') as file:
             json.dump(self.tree_data, file, indent=4)
 
 # Run the application
