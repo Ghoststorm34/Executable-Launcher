@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk, messagebox
+from tkinter import ttk, messagebox, simpledialog, filedialog
 import json
 import os
 
@@ -131,21 +131,82 @@ class ExecutableLauncherApp(tk.Tk):
             self.context_menu.post(event.x_root, event.y_root)
 
     def add_folder(self):
-        # Placeholder function to add a folder
-        print("Add Folder")
-        self.save_data()  # Call save after making changes
+        # Prompt the user for a folder name
+        folder_name = simpledialog.askstring("Add Folder", "Enter folder name:")
+        
+        # Check if a name was provided
+        if folder_name:
+            # Determine where to insert the new folder
+            parent = self.tree.selection()[0] if self.tree.selection() else ''
+            
+            # Check if the parent is an executable
+            if parent:
+                # Check if the parent has values (an executable will have a path)
+                if self.tree.item(parent, 'values'):
+                    # If the selected item is an executable, show an error message
+                    messagebox.showerror("Invalid Operation", "Cannot add a folder to an executable.")
+                    return
+            
+            # Add the folder to the treeview
+            self.tree.insert(parent, "end", text=folder_name, open=True)
+            print(f"Added Folder: {folder_name}")
+            
+            # Sort items to ensure folders are on top
+            self.sort_treeview(parent)
+            
+            # Save the updated treeview to the data file
+            self.save_data()
+
+    def sort_treeview(self, parent=''):
+        # Get the children of the current parent
+        children = list(self.tree.get_children(parent))
+        
+        # Separate folders and executables
+        folders = [item for item in children if not self.tree.item(item, 'values')]
+        executables = [item for item in children if self.tree.item(item, 'values')]
+        
+        # Sort folders and executables alphabetically
+        folders.sort(key=lambda x: self.tree.item(x, 'text').lower())
+        executables.sort(key=lambda x: self.tree.item(x, 'text').lower())
+        
+        # Rearrange children in the treeview
+        for index, item in enumerate(folders + executables):
+            self.tree.move(item, parent, index)
 
     def add_executable(self):
-        # Prompt the user for executable name and path
-        name = "New Executable"  # Placeholder, replace with a dialog to input name
-        path = "/path/to/example with spaces"  # Placeholder, replace with a dialog to input path
+        # Prompt the user for the executable name
+        exe_name = simpledialog.askstring("Add Executable", "Enter executable name:")
+        if not exe_name:
+            return  # If no name was provided, exit the function
+        
+        # Open a file picker dialog to select the executable path
+        exe_path = filedialog.askopenfilename(title="Select Executable")
+        if not exe_path:
+            return  # If no path was selected, exit the function
+        
+        # Prompt the user for an emoji
+        exe_emoji = simpledialog.askstring("Add Executable", "Enter emoji for executable (optional):", initialvalue="📁")
+        if not exe_emoji:
+            exe_emoji = "📁"  # Use folder icon as default
+        
+        # Determine where to insert the new executable
         parent = self.tree.selection()[0] if self.tree.selection() else ''
-
-        # Add to treeview
-        # Use a tuple with a single element to correctly insert paths with spaces
-        self.tree.insert(parent, "end", text=name, values=(path,))
-        print(f"Added Executable: {name} with path: {path}")
-        self.save_data()  # Call save after making changes
+        
+        # Check if the selected item is an executable
+        if parent and self.tree.item(parent, 'values'):
+            # If the selected item is an executable, show an error message
+            messagebox.showerror("Invalid Operation", "Cannot add an executable to another executable.")
+            return
+        
+        # Add the executable to the treeview with the emoji
+        self.tree.insert(parent, "end", text=f"{exe_emoji} {exe_name}", values=(exe_path,))
+        print(f"Added Executable: {exe_name} with path: {exe_path} and emoji: {exe_emoji}")
+        
+        # Sort items to ensure folders are on top and executables are at the bottom
+        self.sort_treeview(parent)
+        
+        # Save the updated treeview to the data file
+        self.save_data()
 
     def edit_item(self):
         # Placeholder function to edit an item
