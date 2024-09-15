@@ -7,3 +7,4 @@ ChatGPT was used for most of the code, with small bits done by hand for bugfixin
 
 I hope this is useful to somebody, it was certainly useful for me.
 
+![image](https://github.com/user-attachments/assets/214e91d7-22dc-404f-937b-483be11f1fc4)
