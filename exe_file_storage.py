@@ -104,7 +104,7 @@ class ExecutableLauncherApp(tk.Tk):
 
     def show_about_info(self):
         # Placeholder for showing information about the application
-        messagebox.showinfo("About Executable Launcher", "Executable Launcher v1.6\nOrganize and run your executables.")
+        messagebox.showinfo("About Executable Launcher", "Executable Launcher\nOrganize and run your executables.")
 
 
     def create_search_bar(self):
