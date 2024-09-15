@@ -22,6 +22,10 @@ class ExecutableLauncherApp(tk.Tk):
         style.configure("Treeview", background="#2e2e2e", foreground="white", fieldbackground="#2e2e2e")
         style.map('Treeview', background=[('selected', '#4d4d4d')], foreground=[('selected', 'white')])
 
+        # Initialize variables for drag and drop
+        self.dragging_item = None
+        self.drag_label = None  # For the floating label
+
         # Create the menu bar
         self.create_menu_bar()
 
@@ -123,6 +127,7 @@ class ExecutableLauncherApp(tk.Tk):
         self.context_menu.add_command(label="Remove", command=self.remove_item)
         self.context_menu.add_separator()
         self.context_menu.add_command(label="Execute", command=self.execute_selected)
+        self.context_menu.add_command(label="Sort", command=self.sort_items)
 
     def create_bottom_buttons(self):
         # Create a frame for bottom buttons
@@ -378,33 +383,29 @@ class ExecutableLauncherApp(tk.Tk):
         try:
             # Use subprocess.Popen to execute the file
             subprocess.Popen(exe_path, shell=True)
-            print(f"Executed: {exe_path}")
         except Exception as e:
             # Show an error message if execution fails
             messagebox.showerror("Execution Error", f"Failed to execute: {exe_path}\nError: {e}")
 
     def rebuild_treeview(self, data, parent=''):
-        # Separate folders and executables
+        # Separate folders and executables without sorting
         folders = {k: v for k, v in data.items() if isinstance(v, dict) and 'path' not in v}
         executables = {k: v for k, v in data.items() if isinstance(v, dict) and 'path' in v}
 
-        # Sort folders and executables alphabetically
-        sorted_folders = sorted(folders.items(), key=lambda x: x[0].lower())
-        sorted_executables = sorted(executables.items(), key=lambda x: x[0].lower())
-
         # Insert folders first
-        for folder_name, folder_content in sorted_folders:
+        for folder_name, folder_content in folders.items():
             # Insert folder into the treeview
             item_id = self.tree.insert(parent, "end", text=folder_name, open=True)
             # Recursively rebuild the treeview for this folder's children
             self.rebuild_treeview(folder_content, item_id)
 
         # Insert executables after folders
-        for exe_name, exe_content in sorted_executables:
+        for exe_name, exe_content in executables.items():
             # Insert executable into the treeview
             exe_path = exe_content['path']
             exe_emoji = exe_content['emoji']
             self.tree.insert(parent, "end", text=f"{exe_emoji} {exe_name}", values=(exe_path,))
+
 
     def search_items(self, event=None):
         # Get the search query
@@ -475,17 +476,105 @@ class ExecutableLauncherApp(tk.Tk):
         return sorted_data
 
     def on_drag_start(self, event):
-        # Placeholder for drag start logic
-        self.drag_data = {"item": self.tree.identify_row(event.y)}
-        print("Drag Start")
+        try:
+            # Identify the item being dragged
+            item_id = self.tree.identify_row(event.y)
+            if item_id:
+                self.dragging_item = item_id
+                # Create a floating label to follow the mouse cursor
+                item_text = self.tree.item(item_id, 'text')
+                self.drag_label = tk.Label(
+                    self, 
+                    text=item_text, 
+                    relief='solid', 
+                    bg='#333333',  # Dark background color
+                    fg='white',    # White text color for contrast
+                    font=('Arial', 10, 'bold'),  # Bold font for better readability
+                    padx=5,        # Padding for a cleaner look
+                    pady=2
+                )
+                # Place the label near the cursor
+                self.drag_label.place(x=event.x_root, y=event.y_root)
+        except AttributeError:
+            # Swallow the AttributeError and do nothing
+            pass
+
 
     def on_drag_motion(self, event):
-        # Placeholder for drag motion logic
-        print("Dragging")
+        # Highlight the potential drop target and move the floating label
+        if self.dragging_item and self.drag_label:
+            target_item = self.tree.identify_row(event.y)
+            self.tree.selection_set(target_item)
+            
+            # Move the floating label to follow the mouse cursor
+            self.drag_label.place(x=event.x_root + 10, y=event.y_root + 10)  # Offset for better visibility
 
     def on_drag_release(self, event):
-        # Placeholder for drag release logic
-        print("Drop")
+        if self.dragging_item:
+            # Hide or destroy the floating label
+            if self.drag_label:
+                self.drag_label.destroy()
+                self.drag_label = None
+            
+            # Identify the drop target
+            target_item = self.tree.identify_row(event.y)
+
+            # If target_item is not valid or is the same as dragging_item, return without making changes
+            if not target_item or target_item == self.dragging_item:
+                self.dragging_item = None
+                return
+
+            # Get the parent of the target item
+            target_parent = self.tree.parent(target_item)
+            
+            # Prevent dropping into an executable
+            if self.tree.item(target_item, 'values') and self.tree.item(target_parent, 'values'):
+                self.dragging_item = None
+                messagebox.showerror("Invalid Drop", "Cannot drop into an executable.")
+                return
+
+            # Move the item in the data structure
+            item_name = self.tree.item(self.dragging_item, 'text').split(' ', 1)[-1]
+            dragging_path = self.get_data_path(self.dragging_item)
+            dragging_parent = self.get_current_level(self.tree_data, dragging_path[:-1])
+            item_data = dragging_parent.pop(item_name)
+
+            # If the drop target is an executable, place the dragged item above it
+            if self.tree.item(target_item, 'values'):
+                # Get the level for the parent
+                target_path = self.get_data_path(target_parent)
+                target_level = self.get_current_level(self.tree_data, target_path)
+                
+                # Insert the item above the target item in the parent
+                new_target_data = {}
+                for key, value in target_level.items():
+                    if key == self.tree.item(target_item, 'text').split(' ', 1)[-1]:
+                        # Place the dragged item before the target item
+                        new_target_data[item_name] = item_data
+                    # Insert the original items
+                    new_target_data[key] = value
+
+                # Replace the parent level with the new order
+                target_level.clear()
+                target_level.update(new_target_data)
+
+                # Move the dragged item in the treeview
+                self.tree.move(self.dragging_item, target_parent, self.tree.index(target_item))
+            else:
+                # If not dropping on an executable, add to the new parent normally
+                target_path = self.get_data_path(target_item)
+                target_parent_level = self.get_current_level(self.tree_data, target_path)
+                target_parent_level[item_name] = item_data
+                
+                # Move the dragged item in the treeview
+                self.tree.move(self.dragging_item, target_item, 'end')
+
+            # Clear the dragging state
+            self.dragging_item = None
+
+            # Save the updated treeview to the data file
+            self.save_data()
+
 
     def load_data(self):
         try:
@@ -496,28 +585,14 @@ class ExecutableLauncherApp(tk.Tk):
             # Clear the treeview and rebuild it using the loaded data
             self.tree.delete(*self.tree.get_children())
             self.rebuild_treeview(self.tree_data)
-            print("Tree data loaded.")
         except (FileNotFoundError, json.JSONDecodeError):
             # If the file doesn't exist or is malformed, initialize default data
             self.initialize_default_data()
-            print("No valid saved tree data found. Initialized with default data.")
-
-
 
     def initialize_default_data(self):
         # Initialize a default data structure
         self.tree_data = {
-            "Root Folder": {
-                "Example Executable 🖥️": {
-                    "path": "/path/to/example.exe",
-                    "emoji": "🖥️"
-                },
-                "Example Folder": {
-                    "Sub Executable 📁": {
-                        "path": "/path/to/sub.exe",
-                        "emoji": "📁"
-                    }
-                }
+            "Root": {
             }
         }
 
@@ -529,7 +604,6 @@ class ExecutableLauncherApp(tk.Tk):
         # Save self.tree_data to a JSON file
         with open('tree_data.json', 'w') as file:
             json.dump(self.tree_data, file, indent=4)
-        print("Tree data saved.")
 
 # Run the application
 if __name__ == "__main__":
