@@ -429,22 +429,28 @@ class ExecutableLauncherApp(tk.Tk):
         filtered_data = {}
 
         for key, value in data.items():
-            # Convert the key and path to lowercase for case-insensitive search
             key_lower = key.lower()
 
+            # If the value is a dictionary, it's either a folder or an executable
             if isinstance(value, dict):
-                # Recursively search in folders
-                result = self.search_in_data_structure(value, query)
-                if result or query in key_lower:
-                    # Include the folder if it or its children match the query
-                    filtered_data[key] = result if result else value
+                # Check if it's an executable (contains 'path')
+                if 'path' in value:
+                    path_lower = value['path'].lower()
+                    # If the executable name or path contains the query, include it
+                    if query in key_lower or query in path_lower:
+                        filtered_data[key] = value
+                else:
+                    # It's a folder, so we need to search recursively
+                    result = self.search_in_data_structure(value, query)
+                    if result or query in key_lower:
+                        # Include the folder if it or its children match the query
+                        filtered_data[key] = result if result else value
             else:
-                # Check if the executable name or path contains the query
-                path_lower = value['path'].lower()
-                if query in key_lower or query in path_lower:
-                    filtered_data[key] = value
+                # Handle unexpected cases or incorrect data types (just in case)
+                continue
 
         return filtered_data
+
 
     def reset_treeview(self):
         # Reset the treeview to show the entire data structure
